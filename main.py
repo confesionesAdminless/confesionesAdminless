@@ -47,7 +47,7 @@ resp = {
 }
 
 # Templates
-template = "*Confesión #{} * \n{}"
+template = "Confesión #{} \n{}"
 template_timeout = "Solo se pueden enviar "+str(timeout_max_count)+" confesiones cada "+str(timeout_minutes)+" minuto\nPor favor espere {} segundos..."
 
 message_id = 0
@@ -121,7 +121,7 @@ def telegram_bot():
                 if is_photo:
                     send_photo(str(message_id), text, group_id)
                 else:
-                    send_message(template.format(str(message_id), text), group_id, True)
+                    send_message(template.format(str(message_id), text), group_id, False)
             else:
                 send_message(template_timeout.format(str(timeout)), user_id, False)
             return resp["completed"]
