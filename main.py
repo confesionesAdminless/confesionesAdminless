@@ -85,6 +85,14 @@ def send_poll(message_id, poll_data):
     poll_data["options"] = [op["text"] for op in poll_data["options"]]
     return requests.post(api_url, json=poll_data)
 
+def send_dice(dice_emoji):
+    params = {
+        "method": "sendDice",
+        "chat_id": group_id,
+        "emoji": dice_emoji,
+    }
+    return requests.get(api_url, params=(params))
+
 # Responses
 resp = {
     "completed": "Action Completed",
@@ -151,6 +159,7 @@ def getType(data):
     if "sticker" in msg: return "sticker"
     if "animation" in msg: return "animation"
     if "poll" in msg: return "poll"
+    if "dice" in msg: return "dice"
 
     return False
 
@@ -212,7 +221,7 @@ def telegram_bot():
 
         elif msg_type == "animation":
             animation_id = msg["animation"]["file_id"]
-            send_sticker(animation_id)
+            send_animation(animation_id)
         
         elif msg_type == "poll":
             poll_data = msg["poll"]
@@ -220,6 +229,10 @@ def telegram_bot():
             r.set("message_id", message_id)
             if "id" in poll_data: del poll_data["id"]
             send_poll(str(message_id), poll_data)
+
+        elif msg_type == "dice":
+            dice = msg["dice"]["emoji"]
+            send_dice(dice)
 
         return resp["completed"]
 
