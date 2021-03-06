@@ -101,7 +101,7 @@ resp = {
 }
 
 # Templates
-template = "Confesión #{} \n{}"
+template = "Confesión #C{} \n{}"
 template_timeout = "Solo se pueden enviar "+str(timeout_max_count)+" confesiones cada "+str(timeout_minutes)+" minuto\nPor favor espere {} segundos..."
 
 message_id = 0
