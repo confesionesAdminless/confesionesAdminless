@@ -18,11 +18,17 @@ api_url = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 app = Flask(__name__)
 
+def escape_markdown(text):
+    # https://github.com/python-telegram-bot/python-telegram-bot/blob/master/telegram/utils/helpers.py#L149
+    escape_chars = r'_*`['
+    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
+
 def send_message(text, chat_id):
     params = {
         "method": "sendMessage",
         "chat_id": chat_id,
         "text": text,
+        "parse_mode": "Markdown",
     }
     return requests.get(api_url, params=(params))
 
@@ -31,7 +37,8 @@ def send_photo(message_id, photo_id, caption=""):
         "method": "sendPhoto",
         "chat_id": group_id,
         "photo": photo_id,
-        'caption': template.format(message_id, caption)
+        "caption": template.format(message_id, escape_markdown(caption)),
+        "parse_mode": "Markdown",
     }
     return requests.get(api_url, params=(params))
 
@@ -40,7 +47,8 @@ def send_video(message_id, video_id, caption=""):
         "method": "sendVideo",
         "chat_id": group_id,
         "video": video_id,
-        'caption': template.format(message_id, caption)
+        "caption": template.format(message_id, escape_markdown(caption)),
+        "parse_mode": "Markdown",
     }
     return requests.get(api_url, params=(params))
 
@@ -49,7 +57,8 @@ def send_audio(message_id, audio_id, caption=""):
         "method": "sendAudio",
         "chat_id": group_id,
         "audio": audio_id,
-        'caption': template.format(message_id, caption)
+        "caption": template.format(message_id, escape_markdown(caption)),
+        "parse_mode": "Markdown",
     }
     return requests.get(api_url, params=(params))
 
@@ -58,7 +67,8 @@ def send_voice(message_id, voice_id, caption=""):
         "method": "sendVoice",
         "chat_id": group_id,
         "voice": voice_id,
-        'caption': template.format(message_id, caption)
+        "caption": template.format(message_id, escape_markdown(caption)),
+        "parse_mode": "Markdown",
     }
     return requests.get(api_url, params=(params))
 
@@ -101,7 +111,7 @@ resp = {
 }
 
 # Templates
-template = "Confesión #{} \n{}"
+template = "*Confesión #{}* \n{}"
 template_timeout = "Solo se pueden enviar "+str(timeout_max_count)+" confesiones cada "+str(timeout_minutes)+" minuto\nPor favor espere {} segundos..."
 
 message_id = 0
@@ -181,11 +191,9 @@ def telegram_bot():
 
         if msg_type == "text":
             text = str(msg["text"])
-            # Ignorar comandos
-            if text.startswith("/"): return resp["ignored"]
             message_id += 1
             r.set("message_id", message_id)
-            send_message(template.format(str(message_id), text), group_id)
+            send_message(template.format(str(message_id), escape_markdown(text)), group_id)
 
         elif msg_type == "photo":
             photo_id = msg["photo"][-1]['file_id']
